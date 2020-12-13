@@ -45,6 +45,7 @@ public final class Canvas {
         assert(width >= 1)
         assert(height >= 1)
 
+        // https://medium.com/@s1ddok/combine-the-power-of-coregraphics-and-metal-by-sharing-resource-memory-eabb4c1be615
         let device = MTLCreateSystemDefaultDevice()!
         let pixelRowAlignment = device.minimumLinearTextureAlignment(for: Pixel.metalPixelFormat)
         let minBytesPerRow = width * Pixel.bytesPerPixel
