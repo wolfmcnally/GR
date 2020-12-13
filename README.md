@@ -1,6 +1,6 @@
 # GR
 
-A framework for learning Swift with pixels.
+A framework for learning Swift with pixels. Use [GRPlayer](https://github.com/wolfmcnally/GRPlayer) to check out more programs and write your own.
 
 ## Then
 
@@ -10,3 +10,10 @@ A framework for learning Swift with pixels.
 
 ![](Docs/HelloPixel-Program.png)
 ![](Docs/HelloPixel-Window.png)
+![](Docs/Mandala.gif)
+![](Docs/Drip.gif)
+![](Docs/RainingHearts.gif)
+![](Docs/Whirlwind.gif)
+![](Docs/DancingLine.gif)
+![](Docs/HelloTurtle.gif)
+![](Docs/SpaceRocks.gif)
