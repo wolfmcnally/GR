@@ -8,6 +8,11 @@
 import Foundation
 
 open class Program {
+    open class var title: String { String(describing: Self.self) }
+    open class var subtitle: String? { nil }
+    open class var author: String? { nil }
+    open class var version: String? { nil }
+    
     private var _canvasSize = Size(width: 40, height: 40)
     private var _framesPerSecond: Float = 0.0
     private var needsDisplay: Bool = true
@@ -16,9 +21,9 @@ open class Program {
     public var onScreenChanged: ((ScreenSpec) -> Void)?
 
     public var screenSpec = ScreenSpec(mainLayer: 1, layerSpecs: [
-            LayerSpec(clearColor: Color(color: .white, alpha: 0.05)),
-            LayerSpec(clearColor: .clear)
-        ]) {
+        LayerSpec(clearColor: .black),
+        LayerSpec(clearColor: .clear)
+    ]) {
         didSet { resetScreen() }
     }
 
@@ -75,13 +80,8 @@ open class Program {
         }
     }
 
-    public init() {
-        _setup()
-    }
-
-    private func _setup() {
+    public required init() {
         resetScreen()
-        setup()
     }
 
     private var lastUpdateTime: TimeInterval?
@@ -128,6 +128,13 @@ open class Program {
     open func setup() { }
     open func update() { }
     open func draw() { }
+    
+    open func restart() {
+        frameNumber = 0
+        setup()
+        update()
+        display()
+    }
 
     // macOS
     open func mouseDown(at point: Point) { }

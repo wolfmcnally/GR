@@ -9,7 +9,7 @@ import UIKit
 import Interpolate
 
 public class ProgramUIView: UIKitView {
-    public var program: Program! {
+    var program: Program! {
         didSet {
             syncToProgram()
         }
@@ -20,21 +20,8 @@ public class ProgramUIView: UIKitView {
         }
     }
 
-    private var backgroundView: BackgroundUIView!
-
-    public var backgroundImage: UIImage? {
-        get { return backgroundView.image }
-        set { backgroundView.image = newValue }
-    }
-
-    public var backgroundTintColor: UIColor? {
-        get { return backgroundView.backgroundTintColor }
-        set { backgroundView.backgroundTintColor = newValue }
-    }
-
     override public func setup() {
         super.setup()
-        addBackgroundView()
         addCanvasView()
     }
 
@@ -44,12 +31,6 @@ public class ProgramUIView: UIKitView {
             self.canvasView?.screenSpec = screenSpec
         }
         canvasView?.screenSpec = program.screenSpec
-    }
-
-    func addBackgroundView() {
-        backgroundView = BackgroundUIView(frame: bounds)
-        addSubview(backgroundView)
-        backgroundView.requireSameFrameAsSuperview()
     }
 
     func addCanvasView() {
@@ -75,13 +56,13 @@ public class ProgramUIView: UIKitView {
 
         #if os(tvOS)
         canvasView.swiped = { direction in
-            self.program.swiped(in: direction)
+            self.programRunner.swiped(in: direction)
         }
         canvasView.directionButtonPressed = { direction in
-            self.program.directionButtonPressed(in: direction)
+            self.programRunner.directionButtonPressed(in: direction)
         }
         canvasView.directionButtonReleased = { direction in
-            self.program.directionButtonReleased(in: direction)
+            self.programRunner.directionButtonReleased(in: direction)
         }
         #endif
     }

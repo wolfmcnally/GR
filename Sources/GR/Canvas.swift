@@ -15,10 +15,11 @@ public final class Canvas {
     public var clearColor: Color?
 
     let device: MTLDevice
-    let texture: MTLTexture
+//    let texture: MTLTexture
 
     let context: CGContext
     private let bytesPerRow: Int
+    private let allocationSize: Int
     private let data: UnsafeMutablePointer<UInt8>
     private var _image: UIImage?
 
@@ -52,11 +53,8 @@ public final class Canvas {
         let bytesPerRow = Self.alignUp(size: minBytesPerRow, align: pixelRowAlignment)
         let pagesize = Int(getpagesize())
         let allocationSize = Self.alignUp(size: bytesPerRow * height, align: pagesize)
-        var rawData: UnsafeMutableRawPointer! = nil
-        guard posix_memalign(&rawData, pagesize, allocationSize) == noErr else {
-            fatalError("Error during memory allocation")
-        }
-        let data = UnsafeMutablePointer<UInt8>(OpaquePointer(rawData!))
+        let rawData = mmap(nil, allocationSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, 0, 0)!
+        let data = UnsafeMutablePointer<UInt8>(OpaquePointer(rawData))
 
         let bitmapInfo: CGBitmapInfo = []
         let alphaInfo: CGImageAlphaInfo = .premultipliedLast
@@ -67,26 +65,27 @@ public final class Canvas {
         context.translateBy(x: 0, y: CGFloat(size.height))
         context.scaleBy(x: 1, y: -1)
 
-        let buffer = device.makeBuffer(bytesNoCopy: rawData, length: allocationSize, options: .storageModeShared, deallocator: nil)!
+//        let buffer = device.makeBuffer(bytesNoCopy: rawData, length: allocationSize, options: .storageModeShared, deallocator: nil)!
 
-        let textureDescriptor = MTLTextureDescriptor()
-        textureDescriptor.pixelFormat = Pixel.metalPixelFormat
-        textureDescriptor.width = width
-        textureDescriptor.height = height
-        textureDescriptor.storageMode = .shared
-        textureDescriptor.usage = .shaderRead
-
-        let texture = buffer.makeTexture(descriptor: textureDescriptor, offset: 0, bytesPerRow: bytesPerRow)!
+//        let textureDescriptor = MTLTextureDescriptor()
+//        textureDescriptor.pixelFormat = Pixel.metalPixelFormat
+//        textureDescriptor.width = width
+//        textureDescriptor.height = height
+//        textureDescriptor.storageMode = .shared
+//        textureDescriptor.usage = .shaderRead
+//
+//        let texture = buffer.makeTexture(descriptor: textureDescriptor, offset: 0, bytesPerRow: bytesPerRow)!
 
         self.device = device
         self.bytesPerRow = bytesPerRow
+        self.allocationSize = allocationSize
         self.data = data
         self.context = context
-        self.texture = texture
+//        self.texture = texture
     }
 
     deinit {
-        free(data)
+        munmap(data, allocationSize)
     }
 
     // Returns a size of the 'inSize' aligned to 'align' as long as align is a power of 2
@@ -112,16 +111,17 @@ public final class Canvas {
         self._image = nil
     }
 
-    private func offsetForPoint(_ point: Point) -> Int {
-        Int(point.y) * bytesPerRow + Int(point.x) * Pixel.bytesPerPixel
+    private func offsetForPoint(_ point: Point.IntView) -> Int {
+        point.y * bytesPerRow + point.x * Pixel.bytesPerPixel
     }
 
     public func setPoint(_ point: Point, to color: Color) {
-        bounds.checkPoint(point)
+        let p = point.intView
+        bounds.intView.checkPoint(p)
 
         invalidateImage()
 
-        let pixel = data.advanced(by: offsetForPoint(point))
+        let pixel = data.advanced(by: offsetForPoint(p))
         let alpha = color.alpha.clamped
         pixel[0] = UInt8(color.red.clamped * alpha * 255)
         pixel[1] = UInt8(color.green.clamped * alpha * 255)
@@ -130,8 +130,9 @@ public final class Canvas {
     }
 
     public func colorAtPoint(_ point: Point) -> Color {
-        bounds.checkPoint(point)
-        let pixel = data.advanced(by: offsetForPoint(point))
+        let p = point.intView
+        bounds.intView.checkPoint(p)
+        let pixel = data.advanced(by: offsetForPoint(p))
         let r = Double(pixel[0]) / 255
         let g = Double(pixel[1]) / 255
         let b = Double(pixel[2]) / 255

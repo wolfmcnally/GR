@@ -56,7 +56,7 @@ class CanvasUIView : UIKitView {
         }
 
 //        print("controllers: \(GCController.controllers())")
-        gameControllerConnectionAction = NotificationAction(name: .GCControllerDidConnect, object: nil) { [unowned self] notification in
+        gameControllerConnectionAction = NotificationAction(title: .GCControllerDidConnect, object: nil) { [unowned self] notification in
             print("connected")
             self.gameController = notification.object as! GCController
             let gamepad = self.gameController.microGamepad!
