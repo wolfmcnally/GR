@@ -7,10 +7,10 @@
 
 import Foundation
 
-public func degrees<T: FloatingPoint>(for radians: T) -> T {
-    return radians / .pi * 180
-}
-
-public func radians<T: FloatingPoint>(for degrees: T) -> T {
-    return degrees / 180 * .pi
-}
+//@inlinable public func degrees<T: FloatingPoint>(for radians: T) -> T {
+//    return radians / .pi * 180
+//}
+//
+//@inlinable public func radians<T: FloatingPoint>(for degrees: T) -> T {
+//    return degrees / 180 * .pi
+//}

@@ -21,6 +21,6 @@ import Foundation
 ///
 postfix operator °
 
-public postfix func °<T: FloatingPoint>(rhs: T) -> T {
-    return radians(for: rhs)
+public postfix func °<T: BinaryFloatingPoint>(rhs: T) -> Angle {
+    return Angle(degrees: Double(rhs))
 }

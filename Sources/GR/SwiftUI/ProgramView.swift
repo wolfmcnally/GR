@@ -1,41 +1,30 @@
 //
-//  File.swift
-//  
+//  ProgramView.swift
+//  GR
 //
-//  Created by Wolf McNally on 1/28/21.
+//  Created by Wolf McNally on 11/15/20.
 //
 
 import SwiftUI
+import UIKit
 
-public struct ProgramView<Header>: View where Header: View {
+public struct ProgramView: UIViewRepresentable {
     let program: Program
-    let header: Header
-    
-    public init(_ programType: Program.Type, @ViewBuilder header: () -> Header) {
-        self.program = programType.init()
-        self.header = header()
-    }
-    
-    public var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(SwiftUI.Color(UIColor(white: 0.5, alpha: 0.1)))
-                .edgesIgnoringSafeArea(.all)
-            VStack(alignment: .leading) {
-                header
-                    .padding()
-                ProgramUIViewWrapper(program)
-                    .navigationBarItems(trailing: restartButton)
-            }
-        }
+
+    public init(_ program: Program) {
+        self.program = program
     }
 
-    var restartButton: some View {
-        Button {
-            program.restart()
-        } label: {
-            Image(systemName: "arrow.uturn.left")
-                .font(.title)
+    public func makeUIView(context: Context) -> ProgramUIView {
+        let uiView = ProgramUIView()
+        uiView.program = program
+        program.didDisplay = { [weak uiView] in
+            uiView?.flush()
         }
+        program.restart()
+        return uiView
+    }
+
+    public func updateUIView(_ uiView: ProgramUIView, context: Context) {
     }
 }

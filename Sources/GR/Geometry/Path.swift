@@ -61,7 +61,7 @@ public struct Path : ExpressibleByArrayLiteral {
         transformed(by: .init(translation: point))
     }
 
-    @inlinable public func rotated(by angle: Double) -> Path {
+    @inlinable public func rotated(by angle: Angle) -> Path {
         transformed(by: .init(rotationAngle: angle))
     }
 }

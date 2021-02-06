@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Combine
+import GameController
 
 open class Program {
     open class var title: String { String(describing: Self.self) }
@@ -19,6 +21,8 @@ open class Program {
     public var didDisplay: (() -> Void)?
     public private(set) var frameNumber = 0
     public var onScreenChanged: ((ScreenSpec) -> Void)?
+    public var eventSource = PassthroughSubject<Event, Never>()
+    private var ops = Set<AnyCancellable>()
 
     public var screenSpec = ScreenSpec(mainLayer: 1, layerSpecs: [
         LayerSpec(clearColor: .black),
@@ -69,9 +73,10 @@ open class Program {
             displayLink?.invalidate()
             displayLinkFrameCounter = 0
             guard framesPerSecond > 0 else { return }
-            displayLink = DisplayLink(preferredFramesPerSecond: framesPerSecond) { [unowned self] _ in
+            displayLink = DisplayLink(preferredFramesPerSecond: framesPerSecond) { [weak self] _ in
                 DispatchQueue.main.async {
-                    defer { self.displayLinkFrameCounter += 1}
+                    guard let self = self else { return }
+                    defer { self.displayLinkFrameCounter += 1 }
                     guard self.displayLinkFrameCounter > 1 else { return }
                     self._update()
                     self.displayIfNeeded()
@@ -80,8 +85,139 @@ open class Program {
         }
     }
 
+    private lazy var tapMovePublisher: AnyPublisher<Event, Never> = {
+        eventSource.map { [unowned self] event -> Event? in
+            switch event {
+            case .touchBegan(let point):
+                let direction: Direction
+                
+                let nx = point.x / self.canvasSize.width
+                let ny = point.y / self.canvasSize.height
+                if nx >= ny {
+                    direction = nx >= (1 - ny) ? .right : .up
+                } else {
+                    direction = nx >= (1 - ny) ? .down : .left
+                }
+                
+                self.startRepeatingMove(direction: direction)
+
+                return .move(direction)
+            case .touchEnded:
+                self.endRepeatingMove()
+                return nil
+            default:
+                return nil
+            }
+        }
+        .compactMap { $0 }
+        .eraseToAnyPublisher()
+    }()
+    
+    private var moveTimerCancellable: AnyCancellable?
+
+    public var moveRepeatInitialInterval: TimeInterval = 0.3
+    public var moveRepeatContinuedInterval: TimeInterval = 0.1
+    
+    private func startRepeatingMove(direction: Direction) {
+        self.moveTimerCancellable =
+            Timer.TimerPublisher(interval: moveRepeatInitialInterval, runLoop: .main, mode: .default)
+            .autoconnect()
+            .sink { [unowned self] _ in
+                self.eventSource.send(.move(direction))
+                self.moveTimerCancellable = Timer.TimerPublisher(interval: moveRepeatContinuedInterval, runLoop: .main, mode: .default)
+                    .autoconnect()
+                    .sink { [unowned self] _ in
+                        self.eventSource.send(.move(direction))
+                    }
+            }
+    }
+    
+    private func endRepeatingMove() {
+        self.moveTimerCancellable = nil
+    }
+    
+    private lazy var keyMovePublisher: AnyPublisher<Event, Never> = {
+        eventSource.map { [weak self] event -> Event? in
+            guard let self = self else { return nil }
+            switch event {
+            case .keyPressed(let key):
+                let direction: Direction?
+                switch key {
+                case "UpArrow":
+                    direction = .up
+                case "DownArrow":
+                    direction = .down
+                case "LeftArrow":
+                    direction = .left
+                case "RightArrow":
+                    direction = .right
+                default:
+                    direction = nil
+                }
+                if let direction = direction {
+                    self.startRepeatingMove(direction: direction)
+                    return .move(direction)
+                } else {
+                    return nil
+                }
+            case .keyReleased:
+                self.endRepeatingMove()
+                return nil
+            default:
+                return nil
+            }
+        }
+        .compactMap { $0 }
+        .eraseToAnyPublisher()
+    }()
+    
+    private func setupEvents() {
+        eventSource
+            .merge(with: tapMovePublisher, keyMovePublisher)
+            .sink { [weak self] event in
+                guard let self = self else { return }
+                //print(event)
+                self.onEvent(event: event)
+            }
+        .store(in: &ops)
+    }
+
     public required init() {
+        print("\(type(of: self)) init")
+
+        attachKeyboard()
+        setupEvents()
         resetScreen()
+    }
+    
+    deinit {
+        print("\(self) deinit")
+        
+        detachKeyboard()
+    }
+
+    private static var keyboard: GCKeyboardInput?
+
+    private func attachKeyboard() {
+        precondition(Self.keyboard == nil)
+        
+        guard let keyboard = GCKeyboard.coalesced?.keyboardInput else { return }
+        keyboard.keyChangedHandler = { [weak self] _, key, _, _ in
+            guard let self = self else { return }
+            guard let name = key.aliases.first else { return }
+            if key.isPressed {
+                self.eventSource.send(.keyPressed(name))
+            } else {
+                self.eventSource.send(.keyReleased(name))
+            }
+        }
+        Self.keyboard = keyboard
+    }
+    
+    private func detachKeyboard() {
+        guard let keyboard = Self.keyboard else { return }
+        keyboard.keyChangedHandler = nil
+        Self.keyboard = nil
     }
 
     private var lastUpdateTime: TimeInterval?
@@ -128,6 +264,7 @@ open class Program {
     open func setup() { }
     open func update() { }
     open func draw() { }
+    open func onEvent(event: Event) { }
     
     open func restart() {
         frameNumber = 0
@@ -135,27 +272,4 @@ open class Program {
         update()
         display()
     }
-
-    // macOS
-    open func mouseDown(at point: Point) { }
-    open func mouseDragged(at point: Point) { }
-    open func mouseUp(at point: Point) { }
-
-    open func mouseEntered(at point: Point) { }
-    open func mouseMoved(at point: Point) { }
-    open func mouseExited(at point: Point) { }
-
-    open func keyDown(with key: Key) { }
-    open func keyUp(with key: Key) { }
-
-    // iOS
-    open func touchBegan(at point: Point) { }
-    open func touchMoved(at point: Point) { }
-    open func touchEnded(at point: Point) { }
-    open func touchCancelled(at point: Point) { }
-
-    // tvOS
-    open func directionButtonPressed(in direction: Direction) { }
-    open func directionButtonReleased(in direction: Direction) { }
-    open func swiped(in direction: Direction) { }
 }

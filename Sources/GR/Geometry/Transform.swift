@@ -8,8 +8,8 @@ public struct Transform: Equatable {
         self.cgTransform = cgTransform
     }
 
-    @inlinable public init(rotationAngle: Double) {
-        cgTransform = CGAffineTransform(rotationAngle: CGFloat(rotationAngle))
+    @inlinable public init(rotationAngle: Angle) {
+        cgTransform = CGAffineTransform(rotationAngle: CGFloat(rotationAngle.radians))
     }
 
     @inlinable public init(scaleX x: Double, y: Double) {

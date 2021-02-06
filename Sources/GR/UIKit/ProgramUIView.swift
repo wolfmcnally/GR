@@ -9,7 +9,7 @@ import UIKit
 import Interpolate
 
 public class ProgramUIView: UIKitView {
-    var program: Program! {
+    weak var program: Program? {
         didSet {
             syncToProgram()
         }
@@ -39,19 +39,23 @@ public class ProgramUIView: UIKitView {
         canvasView.requireSameFrameAsSuperview()
 
         canvasView.touchBegan = { [unowned self] point in
-            self.program.touchBegan(at: self.canvasPointForCanvasViewPoint(point))
+            let p = canvasPointForCanvasViewPoint(point)
+            program?.eventSource.send(.touchBegan(p))
         }
 
         canvasView.touchMoved = { [unowned self] point in
-            self.program.touchMoved(at: self.canvasPointForCanvasViewPoint(point))
+            let p = canvasPointForCanvasViewPoint(point)
+            program?.eventSource.send(.touchMoved(p))
         }
 
         canvasView.touchEnded = { [unowned self] point in
-            self.program.touchEnded(at: self.canvasPointForCanvasViewPoint(point))
+            let p = canvasPointForCanvasViewPoint(point)
+            program?.eventSource.send(.touchEnded(p))
         }
 
         canvasView.touchCancelled = { [unowned self] point in
-            self.program.touchCancelled(at: self.canvasPointForCanvasViewPoint(point))
+            let p = canvasPointForCanvasViewPoint(point)
+            program?.eventSource.send(.touchCancelled(p))
         }
 
         #if os(tvOS)
@@ -68,12 +72,15 @@ public class ProgramUIView: UIKitView {
     }
 
     public func flush() {
+        guard let program = program else { return }
         for (view, canvas) in zip(canvasView.layerViews, program.layers) {
             view.image = canvas.image
         }
     }
 
     func canvasPointForCanvasViewPoint(_ point: CGPoint) -> Point {
+        guard let program = program else { return .zero }
+        
         let canvasImageSize = program.canvas.image.size
         let canvasImageSizeScaled = canvasImageSize.aspectFit(within: canvasView.bounds.size)
         let canvasImageFrame = CGRect(origin: .zero, size: canvasImageSizeScaled).settingMidXmidY(self.canvasView.bounds.midXmidY)

@@ -9,9 +9,9 @@ import Foundation
 
 public struct Polar {
     public var magnitude: Double
-    public var angle: Double // radians
+    public var angle: Angle
 
-    public init(magnitude: Double, angle: Double) {
+    public init(magnitude: Double, angle: Angle) {
         self.magnitude = magnitude
         self.angle = angle
     }
@@ -25,12 +25,4 @@ public func + (lhs: Point, rhs: Polar) -> Point {
 
 public func += (lhs: inout Point, rhs: Polar) {
     lhs += rhs.vector
-}
-
-extension Polar: ExpressibleByArrayLiteral {
-    public init(arrayLiteral a: Double...) {
-        assert(a.count == 2)
-        magnitude = a[0]
-        angle = a[1]
-    }
 }

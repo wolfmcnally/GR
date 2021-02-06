@@ -57,7 +57,7 @@ extension Point {
 
     /// Provides conversion from polar coordinates.
     ///
-    /// - Parameter center: The `DPoint` to be considered as the origin.
+    /// - Parameter center: The `Point` to be considered as the origin.
     ///
     /// - Parameter angle: The angle from the angular origin, in radians.
     ///
@@ -91,8 +91,12 @@ extension Point {
 
 extension Point : ExpressibleByArrayLiteral {
     public init(arrayLiteral a: Double...) {
-        assert(a.count == 2)
-        simd = [a[0], a[1]]
+        if a.isEmpty {
+            simd = [0, 0]
+        } else {
+            assert(a.count == 2)
+            simd = [a[0], a[1]]
+        }
     }
 }
 
@@ -110,7 +114,7 @@ extension Point {
 
 extension Point: CustomStringConvertible {
     public var description: String {
-        return("DPoint(\(x), \(y))")
+        return("Point(\(x), \(y))")
     }
 }
 

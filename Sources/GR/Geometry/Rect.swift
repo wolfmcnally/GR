@@ -84,9 +84,14 @@ public struct Rect: Equatable {
 
 extension Rect: ExpressibleByArrayLiteral {
     public init(arrayLiteral a: Double...) {
-        assert(a.count == 4)
-        origin = [a[0], a[1]]
-        size = [a[2], a[3]]
+        if a.isEmpty {
+            origin = .zero
+            size = .zero
+        } else {
+            assert(a.count == 4)
+            origin = [a[0], a[1]]
+            size = [a[2], a[3]]
+        }
     }
 }
 

@@ -10,7 +10,7 @@ import Interpolate
 
 public struct Vector {
     public var simd: SIMD2<Double>
-
+    
     @inlinable public init<N: BinaryInteger>(dx: N, dy: N) {
         simd = [Double(dx), Double(dy)]
     }
@@ -60,8 +60,12 @@ public struct Vector {
 
 extension Vector: ExpressibleByArrayLiteral {
     public init(arrayLiteral a: Double...) {
-        assert(a.count == 2)
-        simd = [a[0], a[1]]
+        if a.isEmpty {
+            simd = [0, 0]
+        } else {
+            assert(a.count == 2)
+            simd = [a[0], a[1]]
+        }
     }
 }
 
