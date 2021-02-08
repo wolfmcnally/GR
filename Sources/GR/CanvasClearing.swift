@@ -9,7 +9,7 @@ import Foundation
 import CoreGraphics
 
 extension Canvas {
-    public func clearToColor(_ color: Color) {
+    public func clear(to color: Color) {
         invalidateImage()
 
         let bounds = CGRect(self.bounds)
@@ -23,6 +23,6 @@ extension Canvas {
 
     public func clear() {
         guard let clearColor = clearColor else { return }
-        clearToColor(clearColor)
+        clear(to: clearColor)
     }
 }
