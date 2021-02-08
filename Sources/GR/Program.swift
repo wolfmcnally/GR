@@ -60,7 +60,7 @@ open class Program {
         onScreenChanged?(screenSpec)
     }
 
-    public var canvasSize: Size {
+    public var canvasSize: IntSize {
         get { screenSpec.canvasSize }
         set { screenSpec.canvasSize = newValue }
     }
@@ -91,8 +91,8 @@ open class Program {
             case .touchBegan(let point):
                 let direction: Direction
                 
-                let nx = point.x / self.canvasSize.width
-                let ny = point.y / self.canvasSize.height
+                let nx = Double(point.x) / Double(self.canvasSize.width)
+                let ny = Double(point.y) / Double(self.canvasSize.height)
                 if nx >= ny {
                     direction = nx >= (1 - ny) ? .right : .up
                 } else {

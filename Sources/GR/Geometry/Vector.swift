@@ -8,36 +8,37 @@
 import Foundation
 import Interpolate
 
-public struct Vector {
-    public var simd: SIMD2<Double>
+public struct Vector: Equatable, Hashable {
+    public var dx: Double
+    public var dy: Double
     
     @inlinable public init<N: BinaryInteger>(dx: N, dy: N) {
-        simd = [Double(dx), Double(dy)]
+        self.dx = Double(dx)
+        self.dy = Double(dy)
     }
 
     @inlinable public init<N: BinaryFloatingPoint>(dx: N, dy: N) {
-        simd = [Double(dx), Double(dy)]
+        self.dx = Double(dx)
+        self.dy = Double(dy)
     }
 
     @inlinable public init(_ v: SIMD2<Double>) {
-        self.simd = v
-    }
-
-    @inlinable public var dx: Double {
-        get { simd.x }
-        set { simd.x = newValue }
-    }
-
-    @inlinable public var dy: Double {
-        get { simd.y }
-        set { simd.y = newValue }
+        self.dx = v.x
+        self.dy = v.y
     }
 
     @inlinable public init(angle theta: Double, magnitude: Double) {
-        simd = [
-            cos(theta) * magnitude,
-            sin(theta) * magnitude
-        ]
+        self.dx = cos(theta) * magnitude
+        self.dy = sin(theta) * magnitude
+    }
+    
+    @inlinable public init(_ v: IntVector) {
+        self.dx = Double(v.dx)
+        self.dy = Double(v.dy)
+    }
+    
+    public var simd: SIMD2<Double> {
+        [dx, dy]
     }
 
     public static let zero = Vector(dx: 0, dy: 0)
@@ -45,45 +46,40 @@ public struct Vector {
     public static let left = Vector(dx: -1, dy: 0)
     public static let down = Vector(dx: 0, dy: 1)
     public static let right = Vector(dx: 1, dy: 0)
-
-    public struct IntView {
-        public let v: Vector
-
-        @inlinable init(_ v: Vector) { self.v = v }
-
-        @inlinable public var dx: Int { Int(v.dx) }
-        @inlinable public var dy: Int { Int(v.dy) }
-    }
-
-    public var intView: IntView { IntView(self) }
 }
 
 extension Vector: ExpressibleByArrayLiteral {
     public init(arrayLiteral a: Double...) {
         if a.isEmpty {
-            simd = [0, 0]
+            self.dx = 0
+            self.dy = 0
         } else {
             assert(a.count == 2)
-            simd = [a[0], a[1]]
+            self.dx = a[0]
+            self.dy = a[1]
         }
     }
 }
 
-extension Vector: CustomStringConvertible {
-    public var description: String {
+extension Vector: CustomDebugStringConvertible {
+    public var debugDescription: String {
         return("Vector(\(dx), \(dy))")
     }
 }
 
 extension Vector {
     @inlinable public init(_ point: Point) {
-        simd = point.simd
+        self.dx = point.x
+        self.dy = point.y
     }
 
     @inlinable public init(_ size: Size) {
-        simd = size.simd
+        self.dx = size.width
+        self.dy = size.height
     }
+}
 
+extension Vector {
     @inlinable public var magnitude: Double {
         return hypot(dx, dy)
     }
@@ -133,13 +129,6 @@ extension Vector {
         return Vector(dx: v1.dx > v2.dx ? v1.dx : v2.dx,
                      dy: v1.dy > v2.dy ? v1.dy : v2.dy)
     }
-}
-
-extension Vector: Equatable {
-}
-
-@inlinable public func == (lhs: Vector, rhs: Vector) -> Bool {
-    return lhs.dx == rhs.dx && lhs.dy == rhs.dy
 }
 
 @inlinable public prefix func - (v: Vector) -> Vector {

@@ -13,6 +13,11 @@ extension Canvas {
         set { setPoint(point, to: newValue) }
     }
 
+    public subscript(point: IntPoint) -> Color {
+        get { colorAtPoint(point) }
+        set { setPoint(point, to: newValue) }
+    }
+
     public subscript(x: Double, y: Double) -> Color {
         get { colorAtPoint(Point(x: x, y: y)) }
         set { setPoint(Point(x: x, y: y), to: newValue) }

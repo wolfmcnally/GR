@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Numerics
 
 extension FloatingPoint {
     /// Returns this value clamped to between 0.0 and 1.0
@@ -48,4 +49,9 @@ public func mod<I: SignedInteger>(_ a: I, _ n: I) -> I {
     precondition(n > 0, "modulus must be positive")
     let r = a % n
     return r >= 0 ? r : r + n
+}
+
+public func mod<F: FloatingPoint>(_ a: F, _ n: F) -> F {
+    precondition(n > 0, "modulus must be positive")
+    return (a.truncatingRemainder(dividingBy: n) + n).truncatingRemainder(dividingBy: n)
 }

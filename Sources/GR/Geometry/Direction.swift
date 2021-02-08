@@ -26,6 +26,19 @@ public enum Direction: CaseIterable {
         }
     }
 
+    public var intOffset: IntVector {
+        switch self {
+        case .up:
+            return IntVector.up
+        case .left:
+            return IntVector.left
+        case .down:
+            return IntVector.down
+        case .right:
+            return IntVector.right
+        }
+    }
+
     public var opposite: Direction {
         switch self {
         case .up:

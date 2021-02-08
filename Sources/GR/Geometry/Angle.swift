@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Angle: Comparable {
+public struct Angle: Comparable, Hashable {
     public var radians: Double = 0
     
     public static let zero = Angle()

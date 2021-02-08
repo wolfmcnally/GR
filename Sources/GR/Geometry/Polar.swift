@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Polar {
+public struct Polar: Equatable, Hashable {
     public var magnitude: Double
     public var angle: Angle
 
@@ -17,6 +17,10 @@ public struct Polar {
     }
 
     public var vector: Vector { Vector(dx: cos(angle) * magnitude, dy: sin(angle) * magnitude) }
+    
+    public static func ==(lhs: Polar, rhs: Polar) -> Bool {
+        lhs.magnitude == rhs.magnitude && lhs.angle == rhs.angle
+    }
 }
 
 public func + (lhs: Point, rhs: Polar) -> Point {

@@ -13,16 +13,16 @@ public struct Shape {
             syncToColorTable()
         }
     }
-    public var offset: Vector.IntView
-    public let size: Size.IntView
+    public var offset: IntVector
+    public let size: IntSize
     public private(set) var rows: [String]
     private var unpackedRows: [[Color?]] = [[]]
 
-    public init(colors: ColorTable = .standardColors, offset: Vector.IntView = Vector.zero.intView, rows: [String] = []) {
+    public init(colors: ColorTable = .standardColors, offset: IntVector = IntVector.zero, rows: [String] = []) {
         self.colors = colors
         self.offset = offset
         self.rows = rows
-        self.size = Size(width: rows[0].count, height: rows.count).intView
+        self.size = IntSize(width: rows[0].count, height: rows.count)
         syncToColorTable()
     }
 
@@ -40,8 +40,8 @@ public struct Shape {
         case clip   // pixles drawn off the side of the canvas are clipped
     }
 
-    public func draw(into canvas: Canvas, position: Point.IntView, mode: Mode = .fence) {
-        let bounds = canvas.bounds.intView
+    public func draw(into canvas: Canvas, position: IntPoint, mode: Mode = .fence) {
+        let bounds = canvas.bounds
         for rowIndex in 0 ..< unpackedRows.count {
             var y = Int(position.y) - Int(offset.dy) + rowIndex
             switch mode {
@@ -50,7 +50,7 @@ public struct Shape {
             case .wrap:
                 y = mod(y, bounds.maxY)
             case .clip:
-                guard canvas.bounds.rangeY.contains(Double(y)) else { continue }
+                guard canvas.bounds.rangeY.contains(y) else { continue }
             }
             let row = unpackedRows[rowIndex]
             for (columnIndex, c) in row.enumerated() {
@@ -62,7 +62,7 @@ public struct Shape {
                 case .wrap:
                     x = mod(x, bounds.maxX)
                 case .clip:
-                    guard canvas.bounds.rangeX.contains(Double(x)) else { continue }
+                    guard canvas.bounds.rangeX.contains(x) else { continue }
                 }
                 canvas[x, y] = color
             }

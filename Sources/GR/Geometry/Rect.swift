@@ -8,7 +8,7 @@
 import Foundation
 import Interpolate
 
-public struct Rect: Equatable {
+public struct Rect: Equatable, Hashable {
     public var origin: Point
     public var size: Size
 
@@ -32,54 +32,15 @@ public struct Rect: Equatable {
     @inlinable public init<N: BinaryInteger>(minX: N, minY: N, maxX: N, maxY: N) {
         self.init(origin: Point(x: minX, y: minY), size: Size(width: maxX - minX, height: maxY - minY))
     }
+    
+    @inlinable public init(_ r: IntRect) {
+        self.origin = Point(r.origin)
+        self.size = Size(r.size)
+    }
 
     public static let zero = Rect(origin: .zero, size: .zero)
     public static let null = Rect(origin: .infinite, size: .zero)
     public static let infinite = Rect(origin: Point(x: -Double.infinity, y: -Double.infinity), size: .infinite)
-
-    public struct IntView {
-        public let rect: Rect
-
-        @inlinable init(_ rect: Rect) { self.rect = rect }
-
-        @inlinable public var width: Int { Int(rect.width) }
-        @inlinable public var height: Int { Int(rect.width) }
-
-        @inlinable public var minX: Int { Int(rect.minX) }
-        @inlinable public var midX: Int { Int(rect.midX - 0.5) }
-        @inlinable public var maxX: Int { Int(rect.maxX - 1) }
-        @inlinable public var minY: Int { Int(rect.minY) }
-        @inlinable public var midY: Int { Int(rect.midY - 0.5) }
-        @inlinable public var maxY: Int { Int(rect.maxY - 1) }
-
-        @inlinable public var rangeX: ClosedRange<Int> { minX ... maxX }
-        @inlinable public var rangeY: ClosedRange<Int> { minY ... maxY }
-
-        @inlinable public func randomX() -> Int { Int.random(in: rangeX) }
-        @inlinable public func randomY() -> Int { Int.random(in: rangeY) }
-        @inlinable public func randomPoint() -> Point { Point(x: randomX(), y: randomY()) }
-
-        @inlinable public func isValidPoint(_ p: Point) -> Bool {
-            Int(p.x) >= minX && Int(p.y) >= minY && Int(p.x) <= maxX && Int(p.y) <= maxY
-        }
-
-        @inlinable public func checkPoint(_ point: Point.IntView) {
-            assert(point.x >= minX, "x must be >= \(minX)")
-            assert(point.y >= minY, "y must be >= \(minY)")
-            assert(point.x <= maxX, "x must be <= \(maxX)")
-            assert(point.y <= maxY, "y must be <= \(maxY)")
-        }
-
-        @inlinable public func checkPoint(_ point: Point) {
-            checkPoint(point.intView)
-        }
-
-        @inlinable public func clampPoint(_ point: Point) -> Point {
-            return Point(x: min(max(Int(point.x), minX), maxX), y: min(max(Int(point.y), minY), maxY))
-        }
-    }
-
-    public var intView: IntView { IntView(self) }
 }
 
 extension Rect: ExpressibleByArrayLiteral {
@@ -95,8 +56,8 @@ extension Rect: ExpressibleByArrayLiteral {
     }
 }
 
-extension Rect: CustomStringConvertible {
-    public var description: String {
+extension Rect: CustomDebugStringConvertible {
+    public var debugDescription: String {
         "Rect(\(minX), \(minY), \(width), \(height))"
     }
 }
@@ -131,17 +92,6 @@ extension Rect {
 }
 
 extension Rect {
-    @inlinable public var rangeX: ClosedRange<Double> { minX ... maxX }
-    @inlinable public var rangeY: ClosedRange<Double> { minY ... maxY }
-}
-
-extension Rect {
-    @inlinable public func randomX() -> Double { Double.random(in: rangeX) }
-    @inlinable public func randomY() -> Double { Double.random(in: rangeY) }
-    @inlinable public func randomPoint() -> Point { Point(x: randomX(), y: randomY()) }
-}
-
-extension Rect {
     @inlinable public var minX: Double {
         get { origin.x }
         set { origin.x = newValue }
@@ -171,6 +121,17 @@ extension Rect {
         get { minY + height }
         set { origin.y = newValue - height }
     }
+}
+
+extension Rect {
+    @inlinable public var rangeX: ClosedRange<Double> { minX ... maxX }
+    @inlinable public var rangeY: ClosedRange<Double> { minY ... maxY }
+}
+
+extension Rect {
+    @inlinable public func randomX() -> Double { Double.random(in: rangeX) }
+    @inlinable public func randomY() -> Double { Double.random(in: rangeY) }
+    @inlinable public func randomPoint() -> Point { Point(x: randomX(), y: randomY()) }
 }
 
 extension Rect {

@@ -11,7 +11,7 @@ import UIKit
 import Metal
 
 public final class Canvas {
-    public let bounds: Rect
+    public let bounds: IntRect
     public var clearColor: Color?
 
     let device: MTLDevice
@@ -36,7 +36,7 @@ public final class Canvas {
         static let metalPixelFormat: MTLPixelFormat = .rgba8Unorm
     }
 
-    public init(size: Size, clearColor: Color = .black) {
+    public init(size: IntSize, clearColor: Color = .black) {
         self.bounds = size.bounds
         self.clearColor = clearColor
 
@@ -111,17 +111,20 @@ public final class Canvas {
         self._image = nil
     }
 
-    private func offsetForPoint(_ point: Point.IntView) -> Int {
+    private func offsetForPoint(_ point: IntPoint) -> Int {
         point.y * bytesPerRow + point.x * Pixel.bytesPerPixel
     }
 
     public func setPoint(_ point: Point, to color: Color) {
-        let p = point.intView
-        bounds.intView.checkPoint(p)
+        setPoint(IntPoint(point), to: color)
+    }
+    
+    public func setPoint(_ point: IntPoint, to color: Color) {
+        bounds.checkPoint(point)
 
         invalidateImage()
 
-        let pixel = data.advanced(by: offsetForPoint(p))
+        let pixel = data.advanced(by: offsetForPoint(point))
         let alpha = color.alpha.clamped
         pixel[0] = UInt8(color.red.clamped * alpha * 255)
         pixel[1] = UInt8(color.green.clamped * alpha * 255)
@@ -130,9 +133,12 @@ public final class Canvas {
     }
 
     public func colorAtPoint(_ point: Point) -> Color {
-        let p = point.intView
-        bounds.intView.checkPoint(p)
-        let pixel = data.advanced(by: offsetForPoint(p))
+        colorAtPoint(IntPoint(point))
+    }
+    
+    public func colorAtPoint(_ point: IntPoint) -> Color {
+        bounds.checkPoint(point)
+        let pixel = data.advanced(by: offsetForPoint(point))
         let r = Double(pixel[0]) / 255
         let g = Double(pixel[1]) / 255
         let b = Double(pixel[2]) / 255
