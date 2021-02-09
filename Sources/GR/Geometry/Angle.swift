@@ -20,7 +20,7 @@ public struct Angle: Comparable, Hashable {
     
     public var unit: Double {
         get { radians / .pi * 0.5 }
-        set { radians = newValue * 0.5 * .pi }
+        set { radians = newValue * 2 * .pi }
     }
     
     public init() { }
@@ -34,19 +34,7 @@ public struct Angle: Comparable, Hashable {
     }
     
     public init(unit: Double) {
-        self.radians = unit * 0.5 * .pi
-    }
-    
-    @inlinable static func degrees(_ radians: Double) -> Angle {
-        Angle(radians: radians)
-    }
-    
-    @inlinable static func radians(_ degrees: Double) -> Angle {
-        Angle(degrees: degrees)
-    }
-    
-    @inlinable static func unit(_ unit: Double) -> Angle {
-        Angle(unit: unit)
+        self.radians = unit * 2 * .pi
     }
 
     public static func < (lhs: Angle, rhs: Angle) -> Bool {
@@ -125,5 +113,11 @@ extension Angle {
     
     public static func random<T>(in range: ClosedRange<Self>, using generator: inout T) -> Self where T : RandomNumberGenerator {
         Angle(radians: Double.random(in: range.lowerBound.radians ... range.upperBound.radians, using: &generator))
+    }
+}
+
+extension Angle: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        "\(unit)°"
     }
 }

@@ -13,7 +13,7 @@ public struct HSBColor: Equatable {
     public var brightness: Frac
     public var alpha: Frac
 
-    @inlinable public init(hue: Angle, saturation: Frac, brightness: Frac, alpha: Frac = 1) {
+    @inlinable public init(hue: Angle = 0°, saturation: Frac = 0, brightness: Frac = 1, alpha: Frac = 1) {
         self.hue = hue
         self.saturation = saturation
         self.brightness = brightness
@@ -81,7 +81,7 @@ extension HSBColor {
             default: fatalError()
             }
         }
-        self.hue = .unit(hue)
+        self.hue = Angle(unit: hue)
         self.saturation = saturation
         self.brightness = brightness
         self.alpha = alpha

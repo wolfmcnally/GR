@@ -15,18 +15,22 @@ public struct Polar: Equatable, Hashable {
         self.magnitude = magnitude
         self.angle = angle
     }
-
-    public var vector: Vector { Vector(dx: cos(angle) * magnitude, dy: sin(angle) * magnitude) }
     
     public static func ==(lhs: Polar, rhs: Polar) -> Bool {
         lhs.magnitude == rhs.magnitude && lhs.angle == rhs.angle
     }
 }
 
+extension Vector {
+    public init(_ p: Polar) {
+        self.init(dx: cos(p.angle) * p.magnitude, dy: sin(p.angle) * p.magnitude)
+    }
+}
+
 public func + (lhs: Point, rhs: Polar) -> Point {
-    lhs + rhs.vector
+    lhs + Vector(rhs)
 }
 
 public func += (lhs: inout Point, rhs: Polar) {
-    lhs += rhs.vector
+    lhs += Vector(rhs)
 }

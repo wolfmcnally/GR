@@ -81,11 +81,11 @@ extension Vector {
 
 extension Vector {
     @inlinable public var magnitude: Double {
-        return hypot(dx, dy)
+        hypot(dx, dy)
     }
 
-    @inlinable public var angle: Double {
-        return atan2(dy, dx)
+    @inlinable public var angle: Angle {
+        Angle(radians: atan2(dy, dx))
     }
 
     @inlinable public var normalized: Vector {
