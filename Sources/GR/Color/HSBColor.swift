@@ -8,56 +8,46 @@
 import Foundation
 
 public struct HSBColor: Equatable {
-    public var c: SIMD4<Frac>
+    public var hue: Angle
+    public var saturation: Frac
+    public var brightness: Frac
+    public var alpha: Frac
 
-    @inlinable public var hue: Frac {
-        get { c[0] }
-        set { c[0] = newValue }
-    }
-
-    @inlinable public var saturation: Frac {
-        get { c[1] }
-        set { c[1] = newValue }
-    }
-
-    @inlinable public var brightness: Frac {
-        get { c[2] }
-        set { c[2] = newValue }
-    }
-
-    @inlinable public var alpha: Frac {
-        get { c[3] }
-        set { c[3] = newValue }
-    }
-
-    @inlinable public init(c: SIMD4<Frac>) {
-        self.c = c
-    }
-
-    @inlinable public init(hue: Frac, saturation: Frac, brightness: Frac, alpha: Frac = 1) {
-        c = [hue, saturation, brightness, alpha]
+    @inlinable public init(hue: Angle, saturation: Frac, brightness: Frac, alpha: Frac = 1) {
+        self.hue = hue
+        self.saturation = saturation
+        self.brightness = brightness
+        self.alpha = alpha
     }
 }
 
 extension HSBColor: ExpressibleByArrayLiteral {
-    public typealias ArrayLiteralElement = Frac
-
-    public init(arrayLiteral elements: Frac...) {
-        precondition(elements.count >= 4)
-        c = SIMD4<Frac>(elements[0], elements[1], elements[2], elements[3])
+    public init(arrayLiteral a: Frac...) {
+        if a.isEmpty {
+            self.hue = 0°
+            self.saturation = 0
+            self.brightness = 0
+            self.alpha = 1
+        } else {
+            precondition((3...4).contains(a.count))
+            self.hue = Angle(unit: a[0])
+            self.saturation = a[1]
+            self.brightness = a[2]
+            self.alpha = a.count == 4 ? a[3] : 1
+        }
     }
 }
 
-extension HSBColor: CustomStringConvertible {
-    public var description: String {
-        "HSBColor\(debugSummary)"
+extension HSBColor: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        debugSummary
     }
 }
 
 extension HSBColor {
     public var debugSummary: String {
         let joiner = Joiner(left: "HSBColor(", right: ")")
-        joiner += "h:\(hue %% 2) s:\(saturation %% 2) b:\(brightness %% 2)"
+        joiner += "h:\(hue.unit %% 2) s:\(saturation %% 2) b:\(brightness %% 2)"
         if alpha < 1.0 {
             joiner += "a: \(alpha %% 2)"
         }
@@ -91,7 +81,10 @@ extension HSBColor {
             default: fatalError()
             }
         }
-        c = [hue, saturation, brightness, alpha]
+        self.hue = .unit(hue)
+        self.saturation = saturation
+        self.brightness = brightness
+        self.alpha = alpha
     }
 }
 
@@ -114,8 +107,7 @@ extension Color {
             green = v
             blue = v
         } else {
-            var h = hsb.hue.truncatingRemainder(dividingBy: 1.0)
-            if h < 0.0 { h += 1.0 }
+            var h = mod(hsb.hue.unit, 1)
             h *= 6.0
             let i = Int(floor(h))
             let f = h - Double(i)
@@ -132,10 +124,13 @@ extension Color {
             default: red = 0; green = 0; blue = 0; assert(false, "unknown hue sector")
             }
         }
-        simd = [red, green, blue, alpha]
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.alpha = alpha
     }
 
-    public init(hue: Frac, saturation: Frac, brightness: Frac, alpha: Frac = 1) {
+    public init(hue: Angle, saturation: Frac, brightness: Frac, alpha: Frac = 1) {
         self.init(HSBColor(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha))
     }
 }

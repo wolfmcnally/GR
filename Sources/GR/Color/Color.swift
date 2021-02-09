@@ -9,50 +9,48 @@ import Foundation
 import Interpolate
 
 public struct Color: Equatable {
-    public var simd: SIMD4<Frac>
+    public var red: Frac
+    public var green: Frac
+    public var blue: Frac
+    public var alpha: Frac
 
-    @inlinable public var red: Frac {
-        get { simd[0] }
-        set { simd[0] = newValue }
-    }
-
-    @inlinable public var green: Frac {
-        get { simd[1] }
-        set { simd[1] = newValue }
-    }
-
-    @inlinable public var blue: Frac {
-        get { simd[2] }
-        set { simd[2] = newValue }
-    }
-
-    @inlinable public var alpha: Frac {
-        get { simd[3] }
-        set { simd[3] = newValue }
+    @inlinable public init(red: Frac, green: Frac, blue: Frac, alpha: Frac = 1) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.alpha = alpha
     }
 
     @inlinable public init(simd: SIMD4<Frac>) {
-        self.simd = simd
-    }
-
-    @inlinable public init(red: Frac, green: Frac, blue: Frac, alpha: Frac = 1) {
-        simd = [red, green, blue, alpha]
+        red = simd[0]
+        green = simd[1]
+        blue = simd[2]
+        alpha = simd[3]
     }
 
     @inlinable public init(redByte: UInt8, greenByte: UInt8, blueByte: UInt8, alphaByte: UInt8 = 255) {
-        let red = Frac(redByte) / 255.0
-        let green = Frac(greenByte) / 255.0
-        let blue = Frac(blueByte) / 255.0
-        let alpha = Frac(alphaByte) / 255.0
-        simd = [red, green, blue, alpha]
+        self.red = Frac(redByte) / 255.0
+        self.green = Frac(greenByte) / 255.0
+        self.blue = Frac(blueByte) / 255.0
+        self.alpha = Frac(alphaByte) / 255.0
     }
 
     @inlinable public init(color: Color, alpha: Frac) {
-        simd = [color.red, color.green, color.blue, alpha]
+        self.red = color.red
+        self.green = color.green
+        self.blue = color.blue
+        self.alpha = alpha
     }
 
     @inlinable public init(white: Frac, alpha: Frac = 1) {
-        simd = [white, white, white, alpha]
+        self.red = white
+        self.green = white
+        self.blue = white
+        self.alpha = alpha
+    }
+    
+    @inlinable public var simd: SIMD4<Double> {
+        [red, green, blue, alpha]
     }
 
     public static func random(alpha: Frac = 1) -> Color {
@@ -94,7 +92,7 @@ public struct Color: Equatable {
     public static let brown = Color(red: 0.5058823824, green: 0.3372549117, blue: 0.06666667014, alpha: 1)
     public static let clear = Color(red: 0, green: 0, blue: 0, alpha: 0)
     public static let pink = Color(red: 1, green: 0.75294118, blue: 0.79607843)
-//    public static let chartreuse = blend(from: .yellow, to: .green, at: 0.5)
+    public static let chartreuse = Color.yellow.interpolate(to: .green, at: 0.5)
     public static let gold = Color(redByte: 251, greenByte: 212, blueByte: 55)
     public static let blueGreen = Color(redByte: 0, greenByte: 169, blueByte: 149)
     public static let mediumBlue = Color(redByte: 0, greenByte: 110, blueByte: 185)
@@ -169,16 +167,21 @@ extension Color {
 }
 
 extension Color: ExpressibleByArrayLiteral {
-    public typealias ArrayLiteralElement = Frac
-
-    public init(arrayLiteral elements: Frac...) {
-        precondition(elements.count >= 4)
-        simd = SIMD4<Frac>(elements[0], elements[1], elements[2], elements[3])
+    public init(arrayLiteral a: Frac...) {
+        if a.isEmpty {
+            self = .black
+        } else {
+            precondition((3...4).contains(a.count))
+            self.red = a[0]
+            self.green = a[1]
+            self.blue = a[2]
+            self.alpha = a.count == 4 ? a[3] : 1
+        }
     }
 }
 
-extension Color: CustomStringConvertible {
-    public var description: String {
+extension Color: CustomDebugStringConvertible {
+    public var debugDescription: String {
         debugSummary
     }
 }

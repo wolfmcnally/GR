@@ -18,6 +18,11 @@ public struct Angle: Comparable, Hashable {
         set { radians = newValue / 180 * .pi }
     }
     
+    public var unit: Double {
+        get { radians / .pi * 0.5 }
+        set { radians = newValue * 0.5 * .pi }
+    }
+    
     public init() { }
     
     public init(degrees: Double) {
@@ -28,12 +33,20 @@ public struct Angle: Comparable, Hashable {
         self.radians = radians
     }
     
+    public init(unit: Double) {
+        self.radians = unit * 0.5 * .pi
+    }
+    
     @inlinable static func degrees(_ radians: Double) -> Angle {
         Angle(radians: radians)
     }
     
     @inlinable static func radians(_ degrees: Double) -> Angle {
         Angle(degrees: degrees)
+    }
+    
+    @inlinable static func unit(_ unit: Double) -> Angle {
+        Angle(unit: unit)
     }
 
     public static func < (lhs: Angle, rhs: Angle) -> Bool {
@@ -96,5 +109,21 @@ public struct Angle: Comparable, Hashable {
 extension Angle {
     public static func random() -> Angle {
         Angle(radians: Double.random(in: 0 ..< 2 * .pi))
+    }
+    
+    public static func random(in range: Range<Self>) -> Self {
+        Angle(radians: Double.random(in: range.lowerBound.radians ..< range.upperBound.radians))
+    }
+    
+    public static func random<T>(in range: Range<Self>, using generator: inout T) -> Self where T : RandomNumberGenerator {
+        Angle(radians: Double.random(in: range.lowerBound.radians ..< range.upperBound.radians, using: &generator))
+    }
+    
+    public static func random(in range: ClosedRange<Self>) -> Self {
+        Angle(radians: Double.random(in: range.lowerBound.radians ... range.upperBound.radians))
+    }
+    
+    public static func random<T>(in range: ClosedRange<Self>, using generator: inout T) -> Self where T : RandomNumberGenerator {
+        Angle(radians: Double.random(in: range.lowerBound.radians ... range.upperBound.radians, using: &generator))
     }
 }
