@@ -105,10 +105,10 @@ class CanvasUIView : UIKitView {
             let view = CanvasLayerUIView()
             addSubview(view)
 
-            view.requireCenteredInSuperview();
-            view.preferSameSizeAsSuperview();
-            view.requireNoLargerThanSuperview();
-            view.requireAspect(screenSpec.canvasSize.aspect);
+            view.requireCenteredInSuperview()
+            view.preferSameSizeAsSuperview()
+            view.requireNoLargerThanSuperview()
+            view.requireAspect(screenSpec.canvasSize.aspect)
 
             layerViews.append(view)
         }

@@ -63,45 +63,45 @@ public enum Easing {
         // **** Exponential ****
         case .exponentialIn:
             // https://www.wolframalpha.com/input/?i=Plot%5BPower%5B2.0,+10.0+*+(t%2F1.0+-+1.0)%5D+-+1.0+*+0.001,+%7Bt,+0,+1%7D%5D
-            return (t==0.0) ? 0.0 : pow(2.0, 10.0 * (t/1.0 - 1.0)) - 1.0 * 0.001;
+            return (t==0.0) ? 0.0 : pow(2.0, 10.0 * (t/1.0 - 1.0)) - 1.0 * 0.001
 
         case .exponentialOut:
             // https://www.wolframalpha.com/input/?i=Plot%5B-Power%5B2.0,+-10.0+*+t%2F1.0)+%2B+1.0%5D,+%7Bt,+0,+1%7D%5D
-            return (t==1.0) ? 1.0 : (-pow(2.0, -10.0 * t/1.0) + 1.0);
+            return (t==1.0) ? 1.0 : (-pow(2.0, -10.0 * t/1.0) + 1.0)
 
         case .exponentialInOut:
             var t = t
-            t /= 0.5;
+            t /= 0.5
             if (t < 1.0) {
                 t = 0.5 * pow(2.0, 10.0 * (t - 1.0))
             }
             else {
-                t = 0.5 * (-pow(2.0, -10.0 * (t - 1.0) ) + 2.0);
+                t = 0.5 * (-pow(2.0, -10.0 * (t - 1.0) ) + 2.0)
             }
-            return t;
+            return t
 
         // **** Back ****
         case .backIn:
             // https://www.wolframalpha.com/input/?i=Plot%5Bt+*+t+*+((1.70158+%2B+1.0)+*+t+-+1.70158),+%7Bt,+0,+1%7D%5D
             let overshoot = 1.70158
-            return t * t * ((overshoot + 1.0) * t - overshoot);
+            return t * t * ((overshoot + 1.0) * t - overshoot)
 
         case .backOut:
             let overshoot = 1.70158
             var t = t
-            t = t - 1.0;
-            return t * t * ((overshoot + 1.0) * t + overshoot) + 1.0;
+            t = t - 1.0
+            return t * t * ((overshoot + 1.0) * t + overshoot) + 1.0
 
         case .backInOut:
             let overshoot = 1.70158 * 1.525
             var t = t
-            t = t * 2.0;
+            t = t * 2.0
             if (t < 1.0) {
-                return (t * t * ((overshoot + 1.0) * t - overshoot)) / 2.0;
+                return (t * t * ((overshoot + 1.0) * t - overshoot)) / 2.0
             }
             else {
-                t = t - 2.0;
-                return (t * t * ((overshoot + 1.0) * t + overshoot)) / 2.0 + 1.0;
+                t = t - 2.0
+                return (t * t * ((overshoot + 1.0) * t + overshoot)) / 2.0 + 1.0
             }
 
         // **** Bounce ****
@@ -110,29 +110,29 @@ public enum Easing {
             if(t != 0.0 && t != 1.0) {
                 newT = 1.0 - Self.bounceTime(t: 1.0 - t)
             }
-            return newT;
+            return newT
 
         case .bounceOut:
-            var newT = t;
+            var newT = t
             if(t != 0.0 && t != 1.0) {
                 newT = Self.bounceTime(t: t)
             }
-            return newT;
+            return newT
 
         case .bounceInOut:
             let newT: Double
             if( t == 0.0 || t == 1.0) {
-                newT = t;
+                newT = t
             }
             else if (t < 0.5) {
                 var t = t
-                t = t * 2.0;
+                t = t * 2.0
                 newT = (1.0 - Self.bounceTime(t: 1.0-t) ) * 0.5
             } else {
                 newT = Self.bounceTime(t: t * 2.0 - 1.0) * 0.5 + 0.5
             }
 
-            return newT;
+            return newT
 
         // **** Elastic ****
         case .elasticIn:
@@ -142,42 +142,42 @@ public enum Easing {
             }
             else {
                 var t = t
-                let s = Self.kPeriod / 4.0;
-                t = t - 1;
-                newT = -pow(2, 10 * t) * sin( (t-s) * Self.twoPi / Self.kPeriod);
+                let s = Self.kPeriod / 4.0
+                t = t - 1
+                newT = -pow(2, 10 * t) * sin( (t-s) * Self.twoPi / Self.kPeriod)
             }
-            return newT;
+            return newT
 
         case .elasticOut:
             var newT = 0.0
             if (t == 0.0 || t == 1.0) {
                 newT = t
             } else {
-                let s = Self.kPeriod / 4;
+                let s = Self.kPeriod / 4
                 newT = pow(2.0, -10.0 * t) * sin( (t-s) * Self.twoPi / Self.kPeriod) + 1
             }
             return newT
 
         case .elasticInOut:
-            var newT = 0.0;
+            var newT = 0.0
 
             if( t == 0.0 || t == 1.0 ) {
-                newT = t;
+                newT = t
             }
             else {
                 var t = t
-                t = t * 2.0;
-                let s = Self.kPeriod / 4;
+                t = t * 2.0
+                let s = Self.kPeriod / 4
 
-                t = t - 1.0;
+                t = t - 1.0
                 if( t < 0 ) {
-                    newT = -0.5 * pow(2, 10.0 * t) * sin((t - s) * Self.twoPi / Self.kPeriod);
+                    newT = -0.5 * pow(2, 10.0 * t) * sin((t - s) * Self.twoPi / Self.kPeriod)
                 }
                 else{
-                    newT = pow(2, -10.0 * t) * sin((t - s) * Self.twoPi / Self.kPeriod) * 0.5 + 1.0;
+                    newT = pow(2, -10.0 * t) * sin((t - s) * Self.twoPi / Self.kPeriod) * 0.5 + 1.0
                 }
             }
-            return newT;
+            return newT
         }
     }
 

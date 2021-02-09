@@ -94,7 +94,7 @@ public struct Color: Equatable {
     public static let brown = Color(red: 0.5058823824, green: 0.3372549117, blue: 0.06666667014, alpha: 1)
     public static let clear = Color(red: 0, green: 0, blue: 0, alpha: 0)
     public static let pink = Color(red: 1, green: 0.75294118, blue: 0.79607843)
-    public static let chartreuse = blend(from: .yellow, to: .green, at: 0.5)
+//    public static let chartreuse = blend(from: .yellow, to: .green, at: 0.5)
     public static let gold = Color(redByte: 251, greenByte: 212, blueByte: 55)
     public static let blueGreen = Color(redByte: 0, greenByte: 169, blueByte: 149)
     public static let mediumBlue = Color(redByte: 0, greenByte: 110, blueByte: 185)

@@ -43,6 +43,12 @@ public struct Rect: Equatable, Hashable {
     public static let infinite = Rect(origin: Point(x: -Double.infinity, y: -Double.infinity), size: .infinite)
 }
 
+extension Rect {
+    @inlinable public var snapped: Rect {
+        Rect(origin: origin.snapped, size: size)
+    }
+}
+
 extension Rect: ExpressibleByArrayLiteral {
     public init(arrayLiteral a: Double...) {
         if a.isEmpty {

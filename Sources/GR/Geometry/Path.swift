@@ -2,7 +2,7 @@ import Foundation
 import CoreGraphics
 
 public struct Path : ExpressibleByArrayLiteral {
-    public var cgPath: CGMutablePath
+    public var cgPath: CGPath
 
     public enum Element {
         case moveTo(Point)
@@ -16,19 +16,29 @@ public struct Path : ExpressibleByArrayLiteral {
     }
 
     @inlinable public init(_ elems: [Element]) {
-        self.cgPath = CGMutablePath()
+        let path = CGMutablePath()
         for elem in elems {
             switch elem {
             case .moveTo(let point):
-                cgPath.move(to: CGPoint(point))
+                path.move(to: CGPoint(point))
             case .addLine(let point):
-                cgPath.addLine(to: CGPoint(point))
+                path.addLine(to: CGPoint(point))
             case .addLines(let points):
-                cgPath.addLines(between: points.map { CGPoint($0) })
+                path.addLines(between: points.map { CGPoint($0) })
             case .close:
-                cgPath.closeSubpath()
+                path.closeSubpath()
             }
         }
+        self.cgPath = path
+    }
+    
+    @inlinable public init(rect: Rect) {
+        self.cgPath = CGPath(rect: CGRect(rect), transform: nil)
+    }
+    
+    @inlinable public init(circleCenter center: Point, radius: Double) {
+        let rect = Rect(origin: center, size: .zero).inset(dx: -radius, dy: -radius)
+        self.cgPath = CGPath(ellipseIn: CGRect(rect), transform: nil)
     }
 
     @inlinable public init(arrayLiteral: Element...) {
