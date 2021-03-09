@@ -98,8 +98,8 @@ extension IntRect {
 }
 
 extension IntRect {
-    @inlinable public var rangeX: ClosedRange<Int> { minX ... maxX }
-    @inlinable public var rangeY: ClosedRange<Int> { minY ... maxY }
+    @inlinable public var rangeX: Range<Int> { minX ..< maxX }
+    @inlinable public var rangeY: Range<Int> { minY ..< maxY }
 }
 
 extension IntRect {
