@@ -199,7 +199,7 @@ open class Program {
     private static var keyboard: GCKeyboardInput?
 
     private func attachKeyboard() {
-        precondition(Self.keyboard == nil)
+        precondition(Self.keyboard == nil, "Keyboard could not be attached. Did a previously run Program fail to deinit due to a retain cycle?")
         
         guard let keyboard = GCKeyboard.coalesced?.keyboardInput else { return }
         keyboard.keyChangedHandler = { [weak self] _, key, _, _ in
